@@ -10,10 +10,19 @@ const io = socketio(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', socket => {
-    console.log('some stuff');
+    socket.emit('message', 'What a hack!'); // single client
 
-    socket.emit('message', 'What a hack!');
+    socket.broadcast.emit('message', 'user has join the chat'); // all client except the client that connecting
 
+    socket.on('disconnect', () => {
+        io.emit('message', 'User has left a chat')
+    });
+
+    // listen for chat mesg
+
+    socket.on('chatMessage', (msg) => {
+        io.emit('message', msg);
+    })
 });
 
 const PORT = 3000 || process.env.PORT;
